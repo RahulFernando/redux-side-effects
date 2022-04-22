@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { setNotification } from './ui-slice';
 
 const cartSlice = createSlice({
   name: 'cart',
@@ -7,6 +6,7 @@ const cartSlice = createSlice({
     items: [],
     totalAmount: 0,
     totalQuantity: 0,
+    changed: false,
   },
   reducers: {
     addItem(state, action) {
@@ -25,6 +25,7 @@ const cartSlice = createSlice({
             totalPrice: newItem.price,
           }),
           totalQuantity: state.totalQuantity + 1,
+          changed: true
         };
       }
 
@@ -41,6 +42,7 @@ const cartSlice = createSlice({
         ...state,
         items: updatedItems,
         totalQuantity: state.totalQuantity + 1,
+        changed: true
       };
     },
     removeItem(state, action) {
@@ -53,6 +55,7 @@ const cartSlice = createSlice({
           ...state,
           items: state.items.filter((item) => item.id !== id),
           totalQuantity: state.totalQuantity - 1,
+          changed: true
         };
       }
 
@@ -68,48 +71,21 @@ const cartSlice = createSlice({
         ...state,
         items: updatedItems,
         totalQuantity: state.totalQuantity - 1,
+        changed: true
+      };
+    },
+    replaceCart(state, action) {
+      return {
+        ...state,
+        totalQuantity: action.payload.totalQuantity,
+        items: action.payload.items,
       };
     },
   },
 });
 
-export const sendCartData = (cart) => {
-  return async(dispatch) => {
-    const request = async () => {
-      const response = await fetch(
-        'https://react-http-3606c-default-rtdb.asia-southeast1.firebasedatabase.app/cart.json',
-        { method: 'PUT', body: JSON.stringify(cart) }
-      );
-
-      if (!response.ok) {
-        throw new Error('Sending cart data failed!');
-      }
-    };
-
-    try {
-      await request();
-
-      dispatch(
-        setNotification({
-          status: 'success',
-          title: 'Success',
-          message: 'Sent cart data success',
-        })
-      );
-    } catch (error) {
-      dispatch(
-        setNotification({
-          status: 'pending',
-          title: 'Sending...',
-          message: 'Sending cart data',
-        })
-      ); 
-    }
-  };
-};
-
 const { actions, reducer } = cartSlice;
 
-export const { addItem, removeItem } = actions;
+export const { addItem, removeItem, replaceCart } = actions;
 
 export default reducer;

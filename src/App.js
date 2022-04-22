@@ -5,7 +5,7 @@ import Layout from './components/Layout/Layout';
 import Products from './components/Shop/Products';
 import Notification from './components/UI/Notification';
 
-import { sendCartData } from './redux/cart-slice';
+import { sendCartData, fetchCart } from './redux/cart-actions';
 
 let isInitial = true;
 
@@ -22,8 +22,15 @@ function App() {
       return;
     }
 
-    dispatch(sendCartData(cart))    
+    if (cart.changed) {
+      dispatch(sendCartData({ items: cart.items, totalQuantity: cart.totalQuantity }))    
+    }
+
   }, [cart, dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchCart());
+  }, [dispatch])
 
   return (
     <Fragment>
